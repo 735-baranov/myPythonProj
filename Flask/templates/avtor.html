@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  <title>Material Design Bootstrap</title>
+  <!-- Font Awesome -->
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css">
+  <!-- Bootstrap core CSS -->
+  <link href="/static/css/bootstrap.min.css" rel="stylesheet">
+  <!-- Material Design Bootstrap -->
+  <link href="/static/css/mdb.min.css" rel="stylesheet">
+  <!-- Your custom styles (optional) -->
+  <link href="/static/css/style.css" rel="stylesheet">
+</head>
+
+<body>
+
+  <!-- Start your project here-->
+
+
+  <!-- File_input -->
+    <div class="container-fluid">
+      
+	    <form name="uploadfiles" method = "POST" enctype = "multipart/form-data" >
+		    <div class="input-group">
+			  <div class="input-group-prepend">
+			    <span class="input-group-text" id="inputGroupFileAddon01">Upload</span>
+			  </div>
+			  <div class="custom-file">
+
+			    <input id="uploadfile" type="file" class="custom-file-input" name = "uploadfile" aria describedby="inputGroupFileAddon01">
+			    <label class="custom-file-label" for="inputGroupFile01">Choose file</label>
+			  </div>
+			</div>
+			<input type="button" class="btn btn-primary" value="Upload" id="up_button" onclick="get_grap_data()"/>
+			
+		</form>
+
+  	</div>
+    
+    <div class="container-fluid">
+        <form name="form">
+            <div class="row">
+                <div class="col-sm-4">
+                    <input  type="text"  class="form‐control" placeholder="Repeats" id="rep_id" name="n_rep">
+                    <input  type="text"  class="form‐control" placeholder="Epochs" id="epo_id" name="n_epo">
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-sm-4">
+                    <input  type="text"  class="form‐control" placeholder="Folds" id="fol_id" name="n_fol">
+                    <input  type="text"  class="form‐control" placeholder="Num_Classes" id="na_id" name="n_na">
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-sm-4">
+                    <input  type="text"  class="form‐control" placeholder="Num_Files" id="nf_id" name="n_nf">
+                    <input  type="text"  class="form‐control" placeholder="Num_Symb" id="ns_id" name="n_ns">
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-sm-4">
+                    <input type="button" class="btn btn-primary" value="Go" onclick="get_conf_data()"/>
+                </div>
+            </div>
+        </form>
+    </div>
+    
+    <div class="container-fluid">
+    	<canvas id="myChart" style="max-width: 500px;"></canvas>
+    </div>
+    
+  
+  
+  
+  
+  <!-- /Start your project here-->
+
+  <!-- SCRIPTS -->
+  <!-- JQuery -->
+  <script type="text/javascript" src="/static/js/jquery-3.3.1.min.js"></script>
+  <!-- Bootstrap tooltips -->
+  <script type="text/javascript" src="/static/js/popper.min.js"></script>
+  <!-- Bootstrap core JavaScript -->
+  <script type="text/javascript" src="/static/js/bootstrap.min.js"></script>
+  <!-- MDB core JavaScript -->
+  <script type="text/javascript" src="/static/js/mdb.min.js"></script>
+
+  <script>
+  	var myChart;
+  	var getData = $.get('/data');
+  	getData.done(function(results){
+
+  		var ctx = document.getElementById("myChart").getContext('2d');
+	    myChart = new Chart(ctx, {
+	        type: 'bar',
+	        data: {
+	            labels: results.labels,
+	            datasets: [{
+	                label: 'Процент схожести',
+	                data: results.data,
+	                backgroundColor: [
+	                    'rgba(255, 99, 132, 0.2)',
+	                    'rgba(54, 162, 235, 0.2)',
+	                    'rgba(255, 206, 86, 0.2)',
+	                    'rgba(75, 192, 192, 0.2)',
+	                    'rgba(153, 102, 255, 0.2)',
+	                    'rgba(255, 159, 64, 0.2)'
+	                ],
+	                borderColor: [
+	                    'rgba(255,99,132,1)',
+	                    'rgba(54, 162, 235, 1)',
+	                    'rgba(255, 206, 86, 1)',
+	                    'rgba(75, 192, 192, 1)',
+	                    'rgba(153, 102, 255, 1)',
+	                    'rgba(255, 159, 64, 1)'
+	                ],
+	                borderWidth: 1
+	            }]
+	        },
+	        options: {
+	            scales: {
+	                yAxes: [{
+	                    ticks: {
+	                        beginAtZero:true
+	                    }
+	                }]
+	            }
+	        }
+	    });
+  	});
+
+  	function get_grap_data(){
+
+  		var $input = $("#uploadfile");
+	    var fd = new FormData;
+
+	    fd.append('file', $input.prop('files')[0]);
+
+	    $.ajax({
+	        url: '/upload',
+	        data: fd,
+	        processData: false,
+	        contentType: false,
+	        type: 'POST',
+	        success: function (response) {
+                alert("File have uploaded successfully")
+	        }
+	    });
+    }
+  	// $("#up_button").on('click', updateCharts);
+      
+    function get_conf_data(){
+        $.ajax({
+            url: '/get_data',
+//            data: JSON.stringify(epoch),
+            data: $('form').serialize(),
+            type: 'POST',
+            success: function(response){
+                myChart.data.labels = response.labels;
+				myChart.data.datasets[0].data = response.data;
+				myChart.update();
+//                document.getElementById('rep_id').value = response.data;
+////                $('#col_symb').value = JSON.stringify(response.data);
+////                alert(JSON.stringify(response.data));
+            }
+        });
+    }
+  </script>
+
+
+</body>
+
+</html>
